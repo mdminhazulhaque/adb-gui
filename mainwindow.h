@@ -3,8 +3,11 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QMessageBox>
 #include <QDebug>
 #include <QProgressDialog>
+#include <QFileDialog>
+#include "adb.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,17 +22,13 @@ public:
     ~MainWindow();
 
 private:
-    bool adb_pull(QString remotePath, QString localPath);
-    QString adb_apk_path(QString packageName);
 
 private slots:
     void on_btnLoad_clicked();
-
     void on_btnMarkAll_clicked();
-
     void on_btnUnmarkAll_clicked();
-
     void on_btnBackup_clicked();
+    void on_buttonBrowse_clicked();
 
 private:
     Ui::MainWindow *ui;

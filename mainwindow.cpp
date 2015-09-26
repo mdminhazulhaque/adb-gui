@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("adb-gui");
-    ui->progressBackup->hide();
 }
 
 MainWindow::~MainWindow()
@@ -15,35 +14,18 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::adb_pull(QString remotePath, QString localPath)
-{
-    QProcess process;
-    QString args = QString("pull %1 %2").arg(remotePath).arg(localPath);
-
-    //qDebug() << args;
-
-    process.start("/usr/bin/adb", args.split(" "), QProcess::ReadOnly);
-    process.waitForFinished();
-
-    return true;
-}
-
-QString MainWindow::adb_apk_path(QString packageName)
-{
-    QProcess process;
-    QString args = "shell pm path " + packageName;
-
-    process.start("/usr/bin/adb", args.split(" "), QProcess::ReadOnly);
-    process.waitForFinished();
-
-    QString apkPath = process.readAll();
-    apkPath.remove("package:");
-
-    return apkPath.trimmed();
-}
-
 void MainWindow::on_btnLoad_clicked()
 {
+    ui->packageList->clear();
+
+    if(!ADB::adb_is_device_available())
+    {
+        QMessageBox::critical(this,
+                              "Error",
+                              "No device connected");
+        return;
+    }
+
     QProcess process;
     QString args = "shell pm list packages -3";
 
@@ -53,10 +35,14 @@ void MainWindow::on_btnLoad_clicked()
     while(process.canReadLine())
     {
         QString line = process.readLine().trimmed();
+
+        if(line.startsWith("* daemon"))
+            continue;
+
         line.remove("package:");
 
         QListWidgetItem *listItem = new QListWidgetItem(line, ui->packageList);
-        listItem->setIcon(QIcon::fromTheme("application-archive"));
+        listItem->setIcon(QIcon::fromTheme("application-x-archive"));
         listItem->setCheckState(Qt::Unchecked);
         ui->packageList->addItem(listItem);
 
@@ -84,6 +70,23 @@ void MainWindow::on_btnUnmarkAll_clicked()
 
 void MainWindow::on_btnBackup_clicked()
 {
+    if(ui->backupPath->text().isEmpty() or !QDir(ui->backupPath->text()).exists())
+    {
+        QMessageBox::critical(this,
+                              "Error",
+                              "Backup path is not set or invalid path");
+        return;
+    }
+
+    if(ui->packageList->count() == 0)
+    {
+        QMessageBox::critical(this,
+                              "Error",
+                              "Load packages first");
+        return;
+    }
+
+
     //QProgressDialog progress("Task in progress...", "Cancel", 0, ui->packageList->count(), this);
     //progress.setWindowModality(Qt::WindowModal);
     //progress.show();
@@ -99,23 +102,40 @@ void MainWindow::on_btnBackup_clicked()
             checked++;
     }
 
-    ui->progressBackup->setValue(0);
-    ui->progressBackup->setMinimum(0);
-    ui->progressBackup->setMaximum(checked-1);
-    ui->progressBackup->show();
 
-    for(int i=0, c=0; i<ui->packageList->count(); i++)
+    if(checked == 0)
+    {
+        QMessageBox::critical(this,
+                              "Error",
+                              "No packages selected");
+        return;
+    }
+
+    for(int i=0, c=1; i<ui->packageList->count(); i++)
     {
         QListWidgetItem *item = ui->packageList->item(i);
 
         if(item->checkState() == Qt::Unchecked)
             continue;
 
-        QString apkPath = adb_apk_path(item->text());
-        adb_pull(apkPath, "/home/minhaz");
-        ui->progressBackup->setValue(++c);
+        ui->statusBar->showMessage(QString("Backing up %1 of %2 applications to %3")
+                                   .arg(c)
+                                   .arg(checked)
+                                   .arg(ui->backupPath->text()));
+
+        QString apkPath = ADB::adb_apk_path(item->text());
+        ADB::adb_pull(apkPath, ui->backupPath->text()+"/"+item->text()+".apk");
+        c++;
     }
 
-    ui->progressBackup->hide();
-    //progress.done(ui->packageList->count());
+    ui->statusBar->showMessage(QString("Done backing up %1 applications to %2")
+                               .arg(checked)
+                               .arg(ui->backupPath->text()), 2000);
+}
+
+void MainWindow::on_buttonBrowse_clicked()
+{
+    QString backupDir = QFileDialog::getExistingDirectory(this);
+    if(QDir(backupDir).exists())
+        ui->backupPath->setText(backupDir);
 }

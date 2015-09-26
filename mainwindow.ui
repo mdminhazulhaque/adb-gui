@@ -25,10 +25,14 @@
         <string>Baclup</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QListWidget" name="packageList"/>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="buttonBrowse">
+          <property name="text">
+           <string>Browse</string>
+          </property>
+         </widget>
         </item>
-        <item row="2" column="0">
+        <item row="2" column="0" colspan="3">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="btnMarkAll">
@@ -73,10 +77,16 @@
           </item>
          </layout>
         </item>
-        <item row="1" column="0">
-         <widget class="QProgressBar" name="progressBackup">
-          <property name="value">
-           <number>24</number>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="backupPath"/>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QListWidget" name="packageList"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Backup To</string>
           </property>
          </widget>
         </item>
