@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("adb-gui");
+    setWindowTitle("Android Debug Bridge - Frontend");
 }
 
 MainWindow::~MainWindow()
