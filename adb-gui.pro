@@ -8,9 +8,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    adb.cpp
+    adb.cpp \
+    devicemonitor.cpp
 
 HEADERS  += mainwindow.h \
-    adb.h
+    adb.h \
+    devicemonitor.h
 
 FORMS    += mainwindow.ui

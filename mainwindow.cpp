@@ -7,6 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Android Debug Bridge - Frontend");
+
+    QTimer timerDeviceMonitor;
+    connect(&timerDeviceMonitor, SIGNAL(timeout()), this, SLOT(monitorDevice()));
+    timerDeviceMonitor.start(1000);
 }
 
 MainWindow::~MainWindow()
@@ -14,11 +18,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::monitorDevice()
+{
+    qDebug() << "run";
+}
+
 void MainWindow::on_btnLoad_clicked()
 {
     ui->packageList->clear();
 
-    if(!ADB::adb_is_device_available())
+    if(adb::device_count() < 1)
     {
         QMessageBox::critical(this,
                               "Error",
@@ -123,8 +132,8 @@ void MainWindow::on_btnBackup_clicked()
                                    .arg(checked)
                                    .arg(ui->backupPath->text()));
 
-        QString apkPath = ADB::adb_apk_path(item->text());
-        ADB::adb_pull(apkPath, ui->backupPath->text()+"/"+item->text()+".apk");
+        QString apkPath = adb::apk_path(item->text());
+        adb::pull(apkPath, ui->backupPath->text()+"/"+item->text()+".apk");
         c++;
     }
 
@@ -138,4 +147,16 @@ void MainWindow::on_buttonBrowse_clicked()
     QString backupDir = QFileDialog::getExistingDirectory(this);
     if(QDir(backupDir).exists())
         ui->backupPath->setText(backupDir);
+}
+
+void MainWindow::on_btnReload_clicked()
+{
+    adb::DeviceList devices = adb::device_list();
+
+    for(int d=0; d<devices.size(); d++)
+    {
+        QString itemStr = devices.at(d).serialNumber + " - " + devices.at(d).modelName;
+        ui->menuDevices->addAction(itemStr);
+        //ui->deviceid->addItem(itemStr);
+    }
 }

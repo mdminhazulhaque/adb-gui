@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QProcess>
+#include <QTimer>
 #include <QMessageBox>
 #include <QDebug>
 #include <QProgressDialog>
@@ -24,14 +24,19 @@ public:
 private:
 
 private slots:
+    void monitorDevice();
+
     void on_btnLoad_clicked();
     void on_btnMarkAll_clicked();
     void on_btnUnmarkAll_clicked();
     void on_btnBackup_clicked();
     void on_buttonBrowse_clicked();
 
+    void on_btnReload_clicked();
+
 private:
     Ui::MainWindow *ui;
+    QTimer timerDeviceMonitor;
 };
 
 #endif // MAINWINDOW_H
