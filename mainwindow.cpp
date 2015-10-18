@@ -148,15 +148,3 @@ void MainWindow::on_buttonBrowse_clicked()
     if(QDir(backupDir).exists())
         ui->backupPath->setText(backupDir);
 }
-
-void MainWindow::on_btnReload_clicked()
-{
-    adb::DeviceList devices = adb::device_list();
-
-    for(int d=0; d<devices.size(); d++)
-    {
-        QString itemStr = devices.at(d).serialNumber + " - " + devices.at(d).modelName;
-        ui->menuDevices->addAction(itemStr);
-        //ui->deviceid->addItem(itemStr);
-    }
-}
