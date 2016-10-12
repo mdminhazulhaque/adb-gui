@@ -1,4 +1,4 @@
-# adb-gui
+# adb-gui (Deprecated)
 Graphical frontend of Android Debug Bridge (adb)
 
 ![adb-gui](adb-gui.png)
